@@ -32,7 +32,8 @@ namespace LeaderboardCore.Models
         /// Default is to show for all custom maps.
         /// </summary>
         public virtual bool ShowForLevel(BeatmapKey? beatmapKey) {
-            return beatmapKey?.levelId.Contains(Constants.CustomLevelPrefix) ?? false;
+            // Preserve local behavior: custom leaderboards remain available for every selected level.
+            return true;
         }
 
         internal string pluginId;

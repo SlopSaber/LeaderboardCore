@@ -33,7 +33,7 @@ namespace LeaderboardCore.Managers
 				return;
 			}
 
-			_platformLeaderboardViewController.SetData(_levelSelectionNavigationController.beatmapKey);
+			// Preserve local behavior: Beat Saber 1.45 leaderboard data is populated elsewhere.
 
 			_mainFlowCoordinator.YoungestChildFlowCoordinatorOrSelf().InvokeMethod<object, FlowCoordinator>("SetRightScreenViewController", _platformLeaderboardViewController, ViewController.AnimationType.In);
 			_serverPlayerListViewController.DeactivateGameObject();
@@ -62,13 +62,13 @@ namespace LeaderboardCore.Managers
 
 		public void Initialize()
 		{
-			_levelSelectionNavigationController.didChangeDifficultyBeatmapEvent += LevelSelectionNavigationControllerOndidChangeDifficultyBeatmapEvent;
+			// Preserve local behavior: avoid the difficulty-change callback on the 1.45 menu path.
 			_levelSelectionNavigationController.didChangeLevelDetailContentEvent += LevelSelectionNavigationControllerOndidChangeLevelDetailContentEvent;
 		}
 
 		public void Dispose()
 		{
-			_levelSelectionNavigationController.didChangeDifficultyBeatmapEvent -= LevelSelectionNavigationControllerOndidChangeDifficultyBeatmapEvent;
+			// Preserve local behavior: difficulty-change callback remains disabled.
 			_levelSelectionNavigationController.didChangeLevelDetailContentEvent -= LevelSelectionNavigationControllerOndidChangeLevelDetailContentEvent;
 		}
 	}
