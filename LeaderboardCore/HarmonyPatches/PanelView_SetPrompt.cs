@@ -9,12 +9,14 @@ namespace LeaderboardCore.HarmonyPatches
     internal class PanelView_SetPrompt
     {
 		public static event Action ScoreUploaded;
-		private static MethodBase TargetMethod() => 
-			Plugin.Instance.scoreSaber.Assembly.GetType("ScoreSaber.UI.Leaderboard.PanelView").GetMethod("SetPrompt", BindingFlags.Instance | BindingFlags.Public);
+		private static MethodBase TargetMethod() =>
+			Plugin.Instance.scoreSaber.Assembly
+				.GetType("ScoreSaber.Features.Leaderboards.UI.PanelView")
+				.GetMethod("SetPrompt", BindingFlags.Instance | BindingFlags.Public);
 
-		private static void Postfix(ref CurvedTextMeshPro ____promptText)
+		private static void Postfix(string status)
 		{
-			if (____promptText == null || !____promptText.text.Contains("Score uploaded"))
+			if (string.IsNullOrEmpty(status) || !status.Contains("Score uploaded"))
 				return;
 
 			ScoreUploaded?.Invoke();

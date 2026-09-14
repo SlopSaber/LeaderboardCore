@@ -8,12 +8,14 @@ namespace LeaderboardCore.HarmonyPatches
     internal class PanelView_SetIsLoaded
     {
 		public static event Action<bool> IsLoadedChanged;
-		private static MethodBase TargetMethod() => 
-			Plugin.Instance.scoreSaber.Assembly.GetType("ScoreSaber.UI.Leaderboard.PanelView").GetMethod("set_isLoaded", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetField);
+		private static MethodBase TargetMethod() =>
+			Plugin.Instance.scoreSaber.Assembly
+				.GetType("ScoreSaber.Features.Leaderboards.UI.PanelView")
+				.GetMethod("set_isLoaded", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 
-		private static void Postfix(bool ____isLoaded)
+		private static void Postfix(bool value)
         {
-			IsLoadedChanged?.Invoke(____isLoaded);
+			IsLoadedChanged?.Invoke(value);
         }
 	}
 }
