@@ -11,7 +11,7 @@ namespace LeaderboardCore.HarmonyPatches
 		private static MethodBase TargetMethod() =>
 			Plugin.Instance.scoreSaber.Assembly
 				.GetType("ScoreSaber.Features.Leaderboards.UI.PanelView")
-				.GetMethod("DidActivate", BindingFlags.Instance | BindingFlags.Public);
+				.GetMethod("DidActivate", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
 		private static void Postfix()
 		{
