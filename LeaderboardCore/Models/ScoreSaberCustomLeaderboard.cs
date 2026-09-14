@@ -20,17 +20,28 @@ namespace LeaderboardCore.Models
         public void OnScoreSaberActivated()
         {
             hiddenPosition = new Vector3(-999, -999, -999);
+            var leaderboardTransform = platformLeaderboardViewController?.transform;
+            if (leaderboardTransform == null)
+            {
+                return;
+            }
 
             if (ssLeaderboardElementsTransform == null)
             {
-                ssLeaderboardElementsTransform = platformLeaderboardViewController.transform.Find("ScoreSaberLeaderboardElements");
-                ssLeaderboardElementsPosition = ssLeaderboardElementsTransform.localPosition;
+                ssLeaderboardElementsTransform = leaderboardTransform.Find("ScoreSaberLeaderboardElements");
+                if (ssLeaderboardElementsTransform != null)
+                {
+                    ssLeaderboardElementsPosition = ssLeaderboardElementsTransform.localPosition;
+                }
             }
 
             if (ssPanelScreenTransform == null)
             {
-                ssPanelScreenTransform = platformLeaderboardViewController.transform.Find("ScoreSaberPanelScreen");
-                ssPanelScreenPosition = ssPanelScreenTransform.localPosition;
+                ssPanelScreenTransform = leaderboardTransform.Find("ScoreSaberPanelScreen");
+                if (ssPanelScreenTransform != null)
+                {
+                    ssPanelScreenPosition = ssPanelScreenTransform.localPosition;
+                }
             }
         }
 
