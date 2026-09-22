@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+#nullable enable annotations
 namespace LeaderboardCore.Utilities
 {
     // Mostly a copy-paste of PersistentSingleton<T> from game version < 1.31.0.
@@ -9,7 +10,7 @@ namespace LeaderboardCore.Utilities
         private static object _lock = new object();
         private static bool _applicationIsQuitting;
 
-        public static SharedCoroutineStarter instance
+        public static SharedCoroutineStarter? instance
         {
             get
             {
@@ -23,9 +24,9 @@ namespace LeaderboardCore.Utilities
                 {
                     if (_instance == null)
                     {
-                        _instance = FindObjectOfType<SharedCoroutineStarter>();
+                        _instance = FindFirstObjectByType<SharedCoroutineStarter>();
 
-                        if (FindObjectsOfType<SharedCoroutineStarter>().Length > 1)
+                        if (FindObjectsByType<SharedCoroutineStarter>(FindObjectsSortMode.InstanceID).Length > 1)
                         {
                             Debug.LogError("[Singleton] Something went really wrong - there should never be more than 1 singleton! Reopening the scene might fix it.");
                             return _instance;

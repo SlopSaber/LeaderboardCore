@@ -10,8 +10,11 @@ namespace LeaderboardCore.Models.UI.ViewControllers
     /// </summary>
     public abstract class BasicDoubleTextPanelViewController : BasicPanelViewController
     {
+        /// <summary>The embedded resource for the two-line panel layout.</summary>
         protected string ExtraResourceName { get => "LeaderboardCore.Models.UI.Views.basic-panel-double-text.bsml"; }
+        /// <summary>The BSML source for the two-line panel.</summary>
         protected override string customBSML { get => BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetAssembly(typeof(BasicDoubleTextPanelViewController)), ExtraResourceName); }
+        /// <summary>The object providing two-line panel bindings.</summary>
         protected override object customHost => this;
 
         #region Text
@@ -46,11 +49,14 @@ namespace LeaderboardCore.Models.UI.ViewControllers
         protected virtual void OnBottomClicked() { }
 
         #region toptext
+        /// <summary>Whether the top line needs a clickable or tooltip-enabled control.</summary>
         [UIValue("is-clickable-top")]
         protected bool isClickableTop { get => IsTopTextClickable || TopHoverHint.Length > 0; }
+        /// <summary>Whether the top line uses plain text.</summary>
         [UIValue("not-is-clickable-top")]
         protected bool notIsClickableTop { get => !isClickableTop; }
 
+        /// <summary>Invokes the top-line action when clicking is enabled.</summary>
         [UIAction("clicked-top")]
         protected void ClickedTop() { if (IsTopTextClickable) OnTopClicked(); }
 
@@ -69,15 +75,19 @@ namespace LeaderboardCore.Models.UI.ViewControllers
             }
         }
 
+        /// <summary>The top-line tooltip exposed to BSML.</summary>
         [UIValue("top-hover-hint")]
         protected string topHoverHint {get => TopHoverHint; }
         #endregion
         #region bottomtext
+        /// <summary>Whether the bottom line needs a clickable or tooltip-enabled control.</summary>
         [UIValue("is-clickable-bottom")]
         protected bool isClickableBottom { get => IsBottomTextClickable || BottomHoverHint.Length > 0; }
+        /// <summary>Whether the bottom line uses plain text.</summary>
         [UIValue("not-is-clickable-bottom")]
         protected bool notIsClickableBottom { get => !isClickableBottom; }
 
+        /// <summary>Invokes the bottom-line action when clicking is enabled.</summary>
         [UIAction("clicked-bottom")]
         protected void ClickedBottom() { if (IsBottomTextClickable) OnBottomClicked(); }
 
@@ -97,6 +107,7 @@ namespace LeaderboardCore.Models.UI.ViewControllers
             }
         }
 
+        /// <summary>The bottom-line tooltip exposed to BSML.</summary>
         [UIValue("bottom-hover-hint")]
         protected string bottomHoverHint { get => BottomHoverHint; }
         #endregion

@@ -15,32 +15,38 @@ namespace LeaderboardCore.Models.UI.ViewControllers
     /// </summary>
     public abstract class BasicPanelViewController : BSMLResourceViewController, INotifyPropertyChanged
     {
+        /// <summary>The embedded resource defining the panel layout.</summary>
         public override string ResourceName { get => "LeaderboardCore.Models.UI.Views.basic-panel.bsml"; }
 
+        /// <summary>The BSML source for this panel.</summary>
         public override string Content
         {
             get => BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetAssembly(typeof(BasicPanelViewController)), ResourceName);
         }
 
         #region events
-        public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>Raises the inherited notification used by BSML bindings.</summary>
         protected virtual void OnPropertyChanged(PropertyChangedEventArgs eventArgs)
         {
-            PropertyChanged?.Invoke(this, eventArgs);
+            NotifyPropertyChanged(eventArgs.PropertyName);
         }
         #endregion
 
         #region UI Components
+        /// <summary>The panel background container.</summary>
         [UIComponent("outer")]
         protected Backgroundable outer;
 
+        /// <summary>The image separating the logo from custom content.</summary>
         [UIComponent("separator")]
         protected ImageView separator;
 
+        /// <summary>The interactive logo image.</summary>
         [UIComponent("clickable-logo")]
         protected ClickableImage clickableLogo;
 
+        /// <summary>The noninteractive logo image.</summary>
         [UIComponent("plain-logo")]
         protected ImageView plainLogo;
         #endregion
@@ -66,23 +72,29 @@ namespace LeaderboardCore.Models.UI.ViewControllers
         /// </summary>
         protected virtual void OnLogoClicked() {}
 
+        /// <summary>Whether the interactive logo is visible.</summary>
         [UIValue("is-logo-clickable")]
         protected bool isLogoClickable { get => IsLogoClickable; }
 
+        /// <summary>Whether the noninteractive logo is visible.</summary>
         [UIValue("is-logo-plain")]
         protected bool isLogoNonClickable { get => !isLogoClickable; }
 
+        /// <summary>The logo resource exposed to BSML.</summary>
         [UIValue("logo-source")]
         protected string logoSource { get => LogoSource; }
 
+        /// <summary>The tooltip exposed by the logo.</summary>
         [UIValue("logo-hoverhint")]
         protected string logoHoverHint { get => LogoHoverHint; }
 
+        /// <summary>Forwards the logo click to the implementation.</summary>
         [UIAction("clicked-logo")]
         protected void ClickedLogo() { OnLogoClicked(); }
         #endregion
 
         #region Loading
+        /// <summary>Backing state indicating whether panel content has loaded.</summary>
         protected bool __isLoaded = false;
 
         /// <summary>
@@ -95,11 +107,12 @@ namespace LeaderboardCore.Models.UI.ViewControllers
             set
             {
                 __isLoaded = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(isLoaded)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(isLoading)));
+                NotifyPropertyChanged(nameof(isLoaded));
+                NotifyPropertyChanged(nameof(isLoading));
             }
         }
 
+        /// <summary>Whether to display the loading indicator.</summary>
         [UIValue("is-loading")]
         protected bool isLoading { get => !isLoaded; }
         #endregion
@@ -117,6 +130,7 @@ namespace LeaderboardCore.Models.UI.ViewControllers
         /// </summary>
         protected abstract object customHost { get; }
 
+        /// <summary>The container receiving the implementation's custom BSML.</summary>
         [UIObject("panel-custom")]
         protected GameObject panelCustom;
 
@@ -143,6 +157,7 @@ namespace LeaderboardCore.Models.UI.ViewControllers
         private ImageView _background;
         #endregion
 
+        /// <summary>Applies panel styling and parses custom content after BSML creates the view.</summary>
         [UIAction("#post-parse")]
         public virtual void Parsed()
         {

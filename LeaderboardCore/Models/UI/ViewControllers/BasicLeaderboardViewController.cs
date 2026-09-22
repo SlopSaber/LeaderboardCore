@@ -19,7 +19,7 @@ namespace LeaderboardCore.Models.UI.ViewControllers
     public abstract class BasicLeaderboardViewController : BSMLResourceViewController, INotifyPropertyChanged
     {
         [Inject]
-        PlatformLeaderboardViewController _platformLeaderboardViewController;
+        private PlatformLeaderboardViewController _platformLeaderboardViewController { get; set; }
 
         /// <summary>
         /// The side buttons next to the leaderboard, typically meant for controlling what data is displayed.
@@ -27,21 +27,26 @@ namespace LeaderboardCore.Models.UI.ViewControllers
         #region enums
         public enum LeaderboardScope
         {
+            /// <summary>Show the highest scores from all players.</summary>
             Global,
+            /// <summary>Show scores near the current player's rank.</summary>
             AroundPlayer,
+            /// <summary>Show scores from the current player's friends.</summary>
             Friends
         }
         #endregion
 
+        /// <summary>The embedded resource defining the score table layout.</summary>
         public override string ResourceName { get => "LeaderboardCore.Models.UI.Views.basic-leaderboard.bsml"; }
 
+        /// <summary>The BSML source for this leaderboard.</summary>
         public override string Content
         {
             get => BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetAssembly(typeof(BasicLeaderboardViewController)), ResourceName);
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>The parsed table used to display leaderboard scores.</summary>
         [UIComponent("leaderboard")]
         protected LeaderboardTableView table;
 
@@ -66,7 +71,9 @@ namespace LeaderboardCore.Models.UI.ViewControllers
         /// </summary>
         protected abstract void OnDownClicked();
 
+        /// <summary>Backing state for the previous-page button.</summary>
         protected bool __upEnabled = true;
+        /// <summary>Backing state for the next-page button.</summary>
         protected bool __downEnabled = true;
 
         /// <summary>
@@ -79,10 +86,11 @@ namespace LeaderboardCore.Models.UI.ViewControllers
             set
             {
                 __upEnabled = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(upEnabled)));
+                NotifyPropertyChanged(nameof(upEnabled));
             }
         }
 
+        /// <summary>Forwards the previous-page button action.</summary>
         [UIAction("up-clicked")]
         protected void UpClicked() { OnUpClicked();  }
 
@@ -97,13 +105,15 @@ namespace LeaderboardCore.Models.UI.ViewControllers
             set
             {
                 __downEnabled = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(downEnabled)));
+                NotifyPropertyChanged(nameof(downEnabled));
             }
         }
 
+        /// <summary>Forwards the next-page button action.</summary>
         [UIAction("down-clicked")]
         protected void DownClicked() { OnDownClicked(); }
 
+        /// <summary>Icons and labels for the enabled leaderboard scopes.</summary>
         [UIValue("cell-data")]
         protected List<IconSegmentedControl.DataItem> cellData = new List<IconSegmentedControl.DataItem>();
 
@@ -112,6 +122,7 @@ namespace LeaderboardCore.Models.UI.ViewControllers
         /// </summary>
         public event Action<LeaderboardScope> didSelectLeaderboardScopeEvent;
 
+        /// <summary>Notifies listeners when the player selects a leaderboard scope.</summary>
         [UIAction("cell-selected")]
         protected void OnSelectCell(SegmentedControl segmentedControl, int index)
         {
@@ -121,6 +132,7 @@ namespace LeaderboardCore.Models.UI.ViewControllers
         #endregion
 
         #region Loading
+        /// <summary>Backing state indicating whether score loading has finished.</summary>
         protected bool __isLoaded = false;
 
         /// <summary>
@@ -133,15 +145,17 @@ namespace LeaderboardCore.Models.UI.ViewControllers
             set
             {
                 __isLoaded = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(isLoaded)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(isLoading)));
+                NotifyPropertyChanged(nameof(isLoaded));
+                NotifyPropertyChanged(nameof(isLoading));
             }
         }
 
+        /// <summary>Whether to show the loading indicator.</summary>
         [UIValue("is-loading")]
         protected bool isLoading { get => !isLoaded; }
         #endregion
 
+        /// <summary>Initializes scope icons and the initial loading state.</summary>
         public virtual void Awake()
         {
             cellData.Add(new IconSegmentedControl.DataItem(_platformLeaderboardViewController.GetField<Sprite, PlatformLeaderboardViewController>("_globalLeaderboardIcon"), Localization.Get("BUTTON_HIGHSCORES_GLOBAL")));
