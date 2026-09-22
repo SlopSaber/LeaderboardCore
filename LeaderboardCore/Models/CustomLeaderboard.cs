@@ -47,7 +47,7 @@ namespace LeaderboardCore.Models
                 panelScreen.gameObject.SetActive(true);
             }
 
-            if (!panelScreen.isActiveAndEnabled)
+            if (!panelScreen.isActiveAndEnabled || platformLeaderboardViewController.screen == null)
             {
                 SharedCoroutineStarter.instance.StartCoroutine(WaitForScreen(panelScreen, leaderboardPosition,
                     platformLeaderboardViewController));
@@ -87,7 +87,7 @@ namespace LeaderboardCore.Models
         private IEnumerator WaitForScreen(FloatingScreen panelScreen, Vector3 leaderboardPosition,
             PlatformLeaderboardViewController platformLeaderboardViewController)
         {
-            while (!panelScreen.isActiveAndEnabled)
+            while (!panelScreen.isActiveAndEnabled || platformLeaderboardViewController.screen == null)
             {
                 yield return null;
             }

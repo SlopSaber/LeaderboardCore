@@ -207,7 +207,7 @@ namespace LeaderboardCore.UI.ViewControllers
         [UIAction("left-button-click")]
         private void LeftButtonClick()
         {
-            if (pluginConfig.LastLeaderboard == null)
+            if (currentIndex <= 0 || (!ShowDefaultLeaderboard && currentIndex == 1) || pluginConfig.LastLeaderboard == null)
             {
                 return;
             }
@@ -240,6 +240,11 @@ namespace LeaderboardCore.UI.ViewControllers
 
         private void RightButtonClick(CustomLeaderboard? lastLeaderboard)
         {
+            if (currentIndex >= orderedCustomLeaderboards.Count)
+            {
+                return;
+            }
+
             if (currentIndex == 0)
             {
                 YeetDefault();
