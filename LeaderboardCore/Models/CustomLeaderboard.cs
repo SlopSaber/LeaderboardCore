@@ -69,6 +69,10 @@ namespace LeaderboardCore.Models
 
             if (leaderboardViewController != null)
             {
+                // Parent before initialization and activation. A first-time view has no
+                // screen hierarchy yet; activating it first leaves its content at the
+                // root until a later navigation click reuses the already-parented view.
+                leaderboardViewController.transform.SetParent(platformLeaderboardViewController.transform, false);
                 leaderboardViewController.transform.localPosition = leaderboardPosition;
 
                 if (leaderboardViewController.screen == null)
@@ -77,7 +81,6 @@ namespace LeaderboardCore.Models
                 }
 
                 leaderboardViewController.__Activate(false, false);
-                leaderboardViewController.transform.SetParent(platformLeaderboardViewController.transform);
             }
         }
 
