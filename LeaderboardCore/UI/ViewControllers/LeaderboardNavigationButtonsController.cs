@@ -16,7 +16,7 @@ namespace LeaderboardCore.UI.ViewControllers
 {
     [HotReload(RelativePathToLayout = @"..\Views\LeaderboardNavigationButtons.bsml")]
     [ViewDefinition("LeaderboardCore.UI.Views.LeaderboardNavigationButtons.bsml")]
-    internal class LeaderboardNavigationButtonsController : BSMLAutomaticViewController, IInitializable, IDisposable, INotifyLeaderboardLoad, INotifyCustomLeaderboardsChange
+    internal class LeaderboardNavigationButtonsController : BSMLAutomaticViewController, IInitializable, IDisposable, INotifyLeaderboardSet, INotifyLeaderboardLoad, INotifyCustomLeaderboardsChange
     {
         [Inject]
         private readonly PlatformLeaderboardViewController platformLeaderboardViewController = null!;
@@ -132,7 +132,14 @@ namespace LeaderboardCore.UI.ViewControllers
             {
                 SwitchToLastLeaderboard();
             }
-            else if (currentIndex == 0 && !ShowDefaultLeaderboard)
+            else if (currentIndex > 0)
+            {
+                currentIndex = orderedCustomLeaderboards.FindIndex(leaderboard => leaderboard.LeaderboardId == pluginConfig.LastLeaderboard) + 1;
+            }
+
+            // A saved leaderboard can become unavailable for the selected map.
+            // Apply the fallback in this notification, even after SwitchToDefault.
+            if (currentIndex == 0 && !ShowDefaultLeaderboard)
             {
                 RightButtonClick();
             }
@@ -171,6 +178,7 @@ namespace LeaderboardCore.UI.ViewControllers
                 currentIndex = index;
                 var currentLeaderboard = orderedCustomLeaderboards[currentIndex - 1];
                 pluginConfig.LastLeaderboard = currentLeaderboard.LeaderboardId;
+                YeetDefault();
                 currentLeaderboard.Show(customPanelFloatingScreen, containerPosition, platformLeaderboardViewController);
             }
         }
@@ -180,9 +188,15 @@ namespace LeaderboardCore.UI.ViewControllers
             if (customLeaderboardsById.TryGetValue(pluginConfig.LastLeaderboard ?? "", out var lastLeaderboard))
             {
                 var lastLeaderboardIndex = orderedCustomLeaderboards.IndexOf(lastLeaderboard);
-                lastLeaderboard.Show(customPanelFloatingScreen, containerPosition, platformLeaderboardViewController);
+                if (lastLeaderboardIndex < 0)
+                {
+                    SwitchToDefault(lastLeaderboard);
+                    return;
+                }
+
                 currentIndex = lastLeaderboardIndex + 1;
                 YeetDefault();
+                lastLeaderboard.Show(customPanelFloatingScreen, containerPosition, platformLeaderboardViewController);
             }
         }
 
@@ -299,7 +313,8 @@ namespace LeaderboardCore.UI.ViewControllers
             {
                 SwitchToDefault(lastLeaderboard);
             }
-            else if (pluginConfig.LastLeaderboard != null && !customLeaderboardsById.ContainsKey(pluginConfig.LastLeaderboard) && currentIndex != 0)
+            else if (pluginConfig.LastLeaderboard != null && currentIndex != 0 &&
+                !this.orderedCustomLeaderboards.Any(leaderboard => leaderboard.LeaderboardId == pluginConfig.LastLeaderboard))
             {
                 SwitchToIndex(1, lastLeaderboard);
             }
@@ -313,7 +328,12 @@ namespace LeaderboardCore.UI.ViewControllers
                     SwitchToDefault(lastLeaderboard);
                 }
             }
-            else if (currentIndex == 0 && !ShowDefaultLeaderboard)
+            else if (currentIndex > 0)
+            {
+                currentIndex = this.orderedCustomLeaderboards.FindIndex(leaderboard => leaderboard.LeaderboardId == pluginConfig.LastLeaderboard) + 1;
+            }
+
+            if (currentIndex == 0 && !ShowDefaultLeaderboard)
             {
                 RightButtonClick(lastLeaderboard);
             }
@@ -328,8 +348,16 @@ namespace LeaderboardCore.UI.ViewControllers
         [UIValue("right-button-active")]
         private bool RightButtonActive => currentIndex < orderedCustomLeaderboards.Count;
 
-        private bool ShowDefaultLeaderboard => 
-            scoreSaberCustomLeaderboard != null || 
+        // Legacy ScoreSaber replaces the platform page. Current ScoreSaber
+        // registers a separate custom page, so its presence alone must not keep
+        // the empty platform page selectable on custom maps. Check all registered
+        // pages, not just those that support the current map.
+        private bool HasLegacyScoreSaber =>
+            scoreSaberCustomLeaderboard != null &&
+            !orderedCustomLeaderboardsCache.Any(leaderboard => leaderboard.pluginId == "ScoreSaber");
+
+        private bool ShowDefaultLeaderboard =>
+            HasLegacyScoreSaber ||
             !(selectedLevelKey?.levelId.Contains(Constants.CustomLevelPrefix) ?? false) || 
             orderedCustomLeaderboards.Count == 0;
     }
