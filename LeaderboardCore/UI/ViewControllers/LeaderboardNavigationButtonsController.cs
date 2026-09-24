@@ -68,6 +68,7 @@ namespace LeaderboardCore.UI.ViewControllers
             customFloatingScreenGO.name = "CustomLeaderboardPanel";
 
             platformLeaderboardViewController.didActivateEvent += OnLeaderboardActivated;
+            platformLeaderboardViewController.didDeactivateEvent += OnLeaderboardDeactivated;
         }
 
         public void Dispose()
@@ -77,7 +78,13 @@ namespace LeaderboardCore.UI.ViewControllers
                 Destroy(buttonsFloatingScreen.gameObject);
             }
 
+            if (customPanelFloatingScreen != null && customPanelFloatingScreen.gameObject != null)
+            {
+                Destroy(customPanelFloatingScreen.gameObject);
+            }
+
             platformLeaderboardViewController.didActivateEvent -= OnLeaderboardActivated;
+            platformLeaderboardViewController.didDeactivateEvent -= OnLeaderboardDeactivated;
         }
 
         public void OnEnable()
@@ -97,8 +104,30 @@ namespace LeaderboardCore.UI.ViewControllers
 
         private void OnLeaderboardActivated(bool firstactivation, bool addedtohierarchy, bool screensystemenabling)
         {
-            platformLeaderboardViewController.didActivateEvent -= OnLeaderboardActivated;
+            buttonsFloatingScreen!.gameObject.SetActive(true);
+            customPanelFloatingScreen!.gameObject.SetActive(true);
             buttonsFloatingScreen!.SetRootViewController(this, AnimationType.None);
+            OnLeaderboardLoaded();
+
+            if (currentIndex > 0 && currentIndex <= orderedCustomLeaderboards.Count)
+            {
+                var currentLeaderboard = orderedCustomLeaderboards[currentIndex - 1];
+                if (!currentLeaderboard.IsActive)
+                {
+                    currentLeaderboard.Show(customPanelFloatingScreen, containerPosition, platformLeaderboardViewController);
+                }
+            }
+        }
+
+        private void OnLeaderboardDeactivated(bool removedFromHierarchy, bool screenSystemDisabling)
+        {
+            buttonsFloatingScreen?.gameObject.SetActive(false);
+            customPanelFloatingScreen?.gameObject.SetActive(false);
+
+            if (currentIndex > 0 && currentIndex <= orderedCustomLeaderboards.Count)
+            {
+                orderedCustomLeaderboards[currentIndex - 1].Hide(customPanelFloatingScreen!);
+            }
         }
 
         public void OnLeaderboardSet(BeatmapKey selectedKey)
@@ -109,7 +138,7 @@ namespace LeaderboardCore.UI.ViewControllers
 
         public void OnLeaderboardLoaded(bool loaded = true)
         {
-            if (!isActiveAndEnabled && !isActivated)
+            if (!platformLeaderboardViewController.isActivated || (!isActiveAndEnabled && !isActivated))
                 return;
 
             if (selectedLevelKey != null) {
@@ -305,7 +334,7 @@ namespace LeaderboardCore.UI.ViewControllers
                 this.customLeaderboardsById[customLeaderboard.Key] = customLeaderboard.Value;
             }
 
-            if (this == null || (!isActiveAndEnabled && !isActivated))
+            if (this == null || !platformLeaderboardViewController.isActivated || (!isActiveAndEnabled && !isActivated))
                 return;
 
             // We only want to display the default leaderboard if there's no other custom leaderboards

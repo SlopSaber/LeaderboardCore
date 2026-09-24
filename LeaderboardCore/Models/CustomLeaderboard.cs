@@ -40,8 +40,15 @@ namespace LeaderboardCore.Models
 
         internal string LeaderboardId => $"{pluginId}{leaderboardId}";
 
+        internal bool IsActive => leaderboardViewController != null && leaderboardViewController.isActivated;
+
         internal void Show(FloatingScreen panelScreen, Vector3 leaderboardPosition, PlatformLeaderboardViewController platformLeaderboardViewController)
         {
+            if (!platformLeaderboardViewController.isActivated)
+            {
+                return;
+            }
+
             if (!panelScreen.gameObject.activeSelf)
             {
                 panelScreen.gameObject.SetActive(true);
@@ -89,6 +96,10 @@ namespace LeaderboardCore.Models
         {
             while (!panelScreen.isActiveAndEnabled || platformLeaderboardViewController.screen == null)
             {
+                if (!platformLeaderboardViewController.isActivated)
+                {
+                    yield break;
+                }
                 yield return null;
             }
             Show(panelScreen, leaderboardPosition, platformLeaderboardViewController);
