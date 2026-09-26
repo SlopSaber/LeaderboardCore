@@ -143,10 +143,13 @@ namespace LeaderboardCore.UI.ViewControllers
 
             if (selectedLevelKey != null) {
                 this.orderedCustomLeaderboards.Clear();
-                this.orderedCustomLeaderboards.AddRange(
-                    this.orderedCustomLeaderboardsCache
-                    .Where(ld => ld.ShowForLevel(selectedLevelKey))
-                    .ToList());
+                foreach (var leaderboard in this.orderedCustomLeaderboardsCache)
+                {
+                    if (leaderboard.ShowForLevel(selectedLevelKey))
+                    {
+                        this.orderedCustomLeaderboards.Add(leaderboard);
+                    }
+                }
             }
 
             // If not loaded or leaderboard removed
@@ -316,10 +319,13 @@ namespace LeaderboardCore.UI.ViewControllers
 
             this.orderedCustomLeaderboards.Clear();
             if (selectedLevelKey != null) {
-                this.orderedCustomLeaderboards.AddRange(
-                    this.orderedCustomLeaderboardsCache
-                    .Where(ld => ld.ShowForLevel(selectedLevelKey))
-                    .ToList());
+                foreach (var leaderboard in this.orderedCustomLeaderboardsCache)
+                {
+                    if (leaderboard.ShowForLevel(selectedLevelKey))
+                    {
+                        this.orderedCustomLeaderboards.Add(leaderboard);
+                    }
+                }
             } else {
                 this.orderedCustomLeaderboards.AddRange(orderedCustomLeaderboards);
             }

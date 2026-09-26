@@ -42,6 +42,9 @@ namespace LeaderboardCore.Models
 
         internal bool IsActive => leaderboardViewController != null && leaderboardViewController.isActivated;
 
+        private Coroutine pendingShow;
+        private SharedCoroutineStarter pendingShowStarter;
+
         internal void Show(FloatingScreen panelScreen, Vector3 leaderboardPosition, PlatformLeaderboardViewController platformLeaderboardViewController)
         {
             if (!platformLeaderboardViewController.isActivated)
@@ -56,10 +59,19 @@ namespace LeaderboardCore.Models
 
             if (!panelScreen.isActiveAndEnabled || platformLeaderboardViewController.screen == null)
             {
-                SharedCoroutineStarter.instance.StartCoroutine(WaitForScreen(panelScreen, leaderboardPosition,
-                    platformLeaderboardViewController));
+                if (pendingShow == null)
+                {
+                    pendingShowStarter = SharedCoroutineStarter.instance;
+                    if (pendingShowStarter != null)
+                    {
+                        pendingShow = pendingShowStarter.StartCoroutine(WaitForScreen(panelScreen, leaderboardPosition,
+                            platformLeaderboardViewController));
+                    }
+                }
                 return;
             }
+
+            StopPendingShow();
 
             if (panelViewController != null)
             {
@@ -98,15 +110,30 @@ namespace LeaderboardCore.Models
             {
                 if (!platformLeaderboardViewController.isActivated)
                 {
+                    pendingShow = null;
+                    pendingShowStarter = null;
                     yield break;
                 }
                 yield return null;
             }
+            pendingShow = null;
+            pendingShowStarter = null;
             Show(panelScreen, leaderboardPosition, platformLeaderboardViewController);
+        }
+
+        private void StopPendingShow()
+        {
+            if (pendingShow != null && pendingShowStarter != null)
+            {
+                pendingShowStarter.StopCoroutine(pendingShow);
+            }
+            pendingShow = null;
+            pendingShowStarter = null;
         }
 
         internal void Hide(FloatingScreen panelScreen)
         {
+            StopPendingShow();
             if (panelScreen != null)
             {
                 if (panelScreen.isActiveAndEnabled)
