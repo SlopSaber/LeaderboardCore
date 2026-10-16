@@ -7,7 +7,7 @@
     "description": "A utility for custom leaderboards to attach themselves in Beat Saber.",
     "gameVersion": "1.45.3",
     "dependsOn": {
-        "BSIPA": "^4.2.1",
+        "BSIPA": "^5.0.0",
         "BeatSaberMarkupLanguage": "^1.6.2",
         "SiraUtil": "^3.0.5"
     },
